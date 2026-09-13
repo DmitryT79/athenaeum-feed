@@ -13,7 +13,7 @@ const SOURCES = [
   { id: "quanta",       name: "Quanta Magazine",           category: "Interdisciplinary", color: "#7c8cff", type: "rss",  feed: "https://api.quantamagazine.org/feed/" },
   { id: "aeon",         name: "Aeon",                      category: "Interdisciplinary", color: "#c08cff", type: "rss",  feed: "https://aeon.co/feed.rss" },
   { id: "sciencenews",  name: "Science News",              category: "Interdisciplinary", color: "#4fb9ff", type: "rss",  feed: "https://www.sciencenews.org/feed" },
-  { id: "conversation", name: "The Conversation",        category: "Interdisciplinary", color: "#ff9d6e", type: "rss",  feed: "https://theconversation.com/articles.atom?language=en" }, // May be blocked by Cloudflare
+  { id: "conversation", name: "The Conversation",        category: "Interdisciplinary", color: "#ff9d6e", type: "rss",  feed: "https://theconversation.com/us/topics/science-15/articles.atom" }, // May be blocked by Cloudflare
   { id: "eos",          name: "Eos (AGU)",                 category: "Earth Sciences",    color: "#3ddc97", type: "rss",  feed: "https://eos.org/feed" },
   { id: "nasajpl",      name: "NASA News (incl. JPL)",     category: "Astronomy",         color: "#5b8cff", type: "rss",  feed: "https://www.nasa.gov/rss/dyn/breaking_news.rss" },
   { id: "spacecom",     name: "Space.com",                 category: "Astronomy",         color: "#38bdf8", type: "rss",  feed: "https://www.space.com/feeds/all" },
