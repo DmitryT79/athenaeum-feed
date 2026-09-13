@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080f">
+<title>Athenaeum Feed</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.16/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.16/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/600.css">
+<style>
+  :root{--bg:#07080f;--panel:#12152a;--panel2:#181c36;--line:rgba(255,255,255,.09);
+    --txt:#eef0ff;--txt2:#a3a9c9;--txt3:#6f769b;--accent:#7c8cff;--ok:#38e0c8;--warn:#ffb057;--bad:#ff6b7a;
+    --shadow:0 18px 44px -20px rgba(0,0,0,.9)}
+  [data-theme="light"]{--bg:#f4f5fb;--panel:#fff;--panel2:#f2f3fa;--line:rgba(15,20,45,.12);
+    --txt:#15182b;--txt2:#4b5273;--txt3:#7d84a6;--accent:#4a5cf0;--ok:#0d9c8b;--warn:#c9762a;--bad:#d43d51;
+    --shadow:0 16px 36px -20px rgba(20,25,60,.3)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
+  h1,h2{font-family:'Space Grotesk',sans-serif}
+  ::selection{background:var(--accent);color:#fff}
+
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px}
+
+  header.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .topbar{display:flex;align-items:center;gap:10px;padding:12px 0}
+  .logo{font-family:'Space Grotesk';font-weight:700;font-size:17px;letter-spacing:-.02em;flex:none}
+  .logo span{color:var(--accent)}
+  .status{flex:1;min-width:0;font-size:11.5px;color:var(--txt3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ibtn{border:1px solid var(--line);background:var(--panel);color:var(--txt2);border-radius:10px;
+    width:40px;height:40px;display:grid;place-items:center;cursor:pointer;flex:none;transition:.2s}
+  .ibtn:hover{color:var(--txt);border-color:var(--accent)}
+  .ibtn svg{width:17px;height:17px}
+  .ibtn.spin svg{animation:rot 1s linear infinite}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  .controls{display:flex;flex-direction:column;gap:10px;padding:10px 0 14px}
+  .rowline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .days{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .dchip{border:1px solid var(--line);background:var(--panel);color:var(--txt2);border-radius:999px;
+    padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+  .dchip:hover{color:var(--txt)}
+  .dchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .customd{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--txt3)}
+  .customd input{width:52px;padding:7px 8px;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel);color:var(--txt);font-family:inherit;font-size:12.5px;outline:none}
+  .search{position:relative;flex:1;min-width:170px}
+  .search input{width:100%;padding:10px 12px 10px 36px;border-radius:11px;border:1px solid var(--line);
+    background:var(--panel);color:var(--txt);font-family:inherit;font-size:13.5px;outline:none}
+  .search input:focus{border-color:var(--accent)}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--txt3)}
+  .cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{border:1px solid var(--line);background:transparent;color:var(--txt3);border-radius:999px;
+    padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .cat.on{color:var(--txt);background:var(--panel2);border-color:var(--txt3)}
+
+  .banner{display:none;margin:0 0 14px;border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);
+    background:color-mix(in srgb,var(--warn) 10%,transparent);color:var(--txt2);
+    border-radius:12px;padding:11px 14px;font-size:12.5px;line-height:1.5}
+  .banner.show{display:block}
+  .banner b{color:var(--warn)}
+  .banner button{margin-top:6px;border:1px solid var(--line);background:var(--panel);color:var(--txt);
+    border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+
+  .dayhead{font-family:'Space Grotesk';font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--txt3);margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+  .dayhead::after{content:"";flex:1;height:1px;background:var(--line)}
+  .dayhead .cnt{font-family:'Inter';font-weight:600;font-size:11px;color:var(--txt3);
+    border:1px solid var(--line);border-radius:999px;padding:2px 9px;letter-spacing:0}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px;
+    margin-bottom:10px;transition:opacity .3s,transform .3s,border-color .2s;position:relative}
+  .card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .card.gone{opacity:0;transform:translateX(30px)}
+  .card.read{opacity:.55}
+  .card.read:hover{opacity:.85}
+  .c-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#0a0b14;
+    background:var(--sc);border-radius:5px;padding:3px 8px;flex:none}
+  .time{font-size:11.5px;color:var(--txt3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rm{border:0;background:transparent;color:var(--txt3);cursor:pointer;font-size:15px;line-height:1;
+    padding:6px;border-radius:7px;flex:none;transition:.15s}
+  .rm:hover{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+  .c-body{display:flex;gap:12px;align-items:flex-start}
+  .c-text{flex:1;min-width:0}
+  .title{display:block;font-size:15px;font-weight:600;line-height:1.4;color:var(--txt);text-decoration:none}
+  .title:hover{color:var(--accent)}
+  .title:visited{color:var(--txt3)}
+  .sum{margin:7px 0 0;font-size:13px;line-height:1.55;color:var(--txt2)}
+  .thumb{flex:none;width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+
+  .skel{height:104px;border-radius:14px;background:linear-gradient(100deg,var(--panel) 40%,var(--panel2) 50%,var(--panel) 60%);
+    background-size:200% 100%;animation:sh 1.2s infinite;margin-bottom:10px}
+  @keyframes sh{to{background-position:-200% 0}}
+
+  .empty,.errbox{text-align:center;padding:60px 20px;border:1px dashed var(--line);border-radius:16px;margin-top:20px}
+  .empty h2,.errbox h2{margin:0 0 8px;font-size:18px}
+  .empty p,.errbox p{margin:0;color:var(--txt3);font-size:13.5px}
+
+  .more{display:block;margin:18px auto 40px;border:1px solid var(--line);background:var(--panel);
+    color:var(--txt2);border-radius:11px;padding:12px 26px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .more:hover{color:var(--txt);border-color:var(--accent)}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,80px);background:var(--txt);color:var(--bg);
+    padding:11px 18px;border-radius:10px;font-size:12.5px;font-weight:600;opacity:0;transition:.3s;z-index:99;pointer-events:none}
+  .toast.show{transform:translate(-50%,0);opacity:1}
+
+  @media(min-width:700px){.thumb{width:80px;height:80px}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="logo">Athenaeum<span>Feed</span></div>
+      <div class="status" id="status">Loading…</div>
+      <button class="ibtn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>
+      </button>
+      <button class="ibtn" id="refreshBtn" title="Refresh list" aria-label="Refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+      </button>
+    </div>
+    <div class="controls">
+      <div class="rowline">
+        <div class="days" id="days">
+          <button class="dchip" data-d="1">1d</button>
+          <button class="dchip" data-d="3">3d</button>
+          <button class="dchip on" data-d="7">7d</button>
+          <button class="dchip" data-d="14">14d</button>
+          <button class="dchip" data-d="30">30d</button>
+          <label class="customd">custom <input id="customDays" type="number" min="1" max="90" placeholder="e.g. 5"></label>
+        </div>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Search titles, summaries, sources…" autocomplete="off">
+        </div>
+      </div>
+      <div class="cats" id="cats"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="banner"></div>
+  <div id="list"></div>
+  <button class="more" id="moreBtn" hidden>Show more</button>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+
+let DATA={articles:[],failed:[],generatedAt:null};
+const state={
+  days:Number(store.get("af-days",7))||7,
+  cat:"all", q:"", shown:30, showRemoved:false,
+  removed:new Set(store.get("af-removed",[])),
+  read:new Set(store.get("af-read",[])),
+  theme:store.get("af-theme",matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")
+};
+let toastT;
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1900)};
+
+/* ---------- theme ---------- */
+function applyTheme(){document.documentElement.dataset.theme=state.theme;store.set("af-theme",state.theme)}
+$("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme()};
+
+/* ---------- time labels ---------- */
+function rel(iso){
+  if(!iso)return"date unknown";
+  const m=Math.round((Date.now()-new Date(iso).getTime())/60000);
+  if(m<1)return"just now"; if(m<60)return m+" min ago";
+  const h=Math.round(m/60); if(h<24)return h+" h ago";
+  const d=Math.round(h/24); return d===1?"yesterday":d+" days ago";
+}
+function dayLabel(iso){
+  if(!iso)return"Unknown date";
+  const d=new Date(iso),t=new Date();t.setHours(0,0,0,0);const d0=new Date(d);d0.setHours(0,0,0,0);
+  const diff=(t-d0)/86400000;
+  if(diff===0)return"Today"; if(diff===1)return"Yesterday";
+  return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+}
+
+/* ---------- data ---------- */
+function visible(){
+  const q=state.q.trim().toLowerCase();
+  return DATA.articles.filter(a=>{
+    if(state.removed.has(a.id)&&!state.showRemoved)return false;
+    if(state.cat!=="all"&&a.category!==state.cat)return false;
+    if(q&&!((a.title+" "+(a.summary||"")+" "+a.source).toLowerCase().includes(q)))return false;
+    return true;
+  });
+}
+
+function cardHTML(a){
+  const removed=state.removed.has(a.id),read=state.read.has(a.id);
+  return `<article class="card${read?" read":""}" data-id="${a.id}">
+    <div class="c-top">
+      <span class="badge" style="--sc:${a.color}">${esc(a.source)}</span>
+      <span class="time" title="${a.publishedAt?new Date(a.publishedAt).toLocaleString("en-GB"):""}">${rel(a.publishedAt)} · ${esc(a.category)}</span>
+      <button class="rm" data-rm="${a.id}" title="${removed?"Restore":"Remove"}">${removed?"↩":"✕"}</button>
+    </div>
+    <div class="c-body">
+      <div class="c-text">
+        <a class="title" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a>
+        ${a.summary?`<p class="sum">${esc(a.summary)}</p>`:""}
+      </div>
+      ${a.image?`<img class="thumb" loading="lazy" src="${esc(a.image)}" alt="" onerror="this.remove()">`:""}
+    </div>
+  </article>`;
+}
+
+function render(){
+  const listEl=$("#list"), items=visible();
+  const cats=[...new Set(DATA.articles.map(a=>a.category))];
+  $("#cats").innerHTML=`<button class="cat${state.cat==="all"?" on":""}" data-c="all">All fields</button>`+
+    cats.map(c=>`<button class="cat${state.cat===c?" on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  $$("#cats .cat").forEach(b=>b.onclick=()=>{state.cat=b.dataset.c;render()});
+
+  if(!DATA.articles.length&&!$("#list .skel")){
+    listEl.innerHTML=`<div class="empty"><h2>No articles yet</h2><p>Press the refresh button to fetch the latest articles.</p></div>`;
+    $("#moreBtn").hidden=true;return;
+  }
+  const groups=new Map();
+  for(const a of items){const k=dayLabel(a.publishedAt);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(a)}
+
+  let html="",count=0;
+  outer: for(const[label,arr]of groups){
+    html+=`<div class="dayhead">${esc(label)}<span class="cnt">${arr.length}</span></div>`;
+    for(const a of arr){
+      if(count>=state.shown)break outer;
+      html+=cardHTML(a);count++;
+    }
+  }
+  if(!items.length)html=`<div class="empty"><h2>Nothing matches</h2><p>Try another field, search term, or a wider day window.</p></div>`;
+  listEl.innerHTML=html;
+  $("#moreBtn").hidden=items.length<=state.shown;
+  $("#moreBtn").textContent=`Show more (${items.length-state.shown} remaining)`;
+
+  const ok=17-DATA.failed.length;
+  const upd=DATA.generatedAt?new Date(DATA.generatedAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"—";
+  $("#status").textContent=`${items.length} articles · ${ok}/17 sources · updated ${upd}`;
+
+  const b=$("#banner");
+  if(DATA.failed.length){
+    b.classList.add("show");
+    b.innerHTML=`<b>${DATA.failed.length} source(s) failed:</b> ${DATA.failed.map(f=>esc(f.name)).join(", ")}.<br>
+      The remaining sources loaded normally. You can edit their feed URLs in <code>server.js</code>.<br>
+      <button id="retryBtn">Refresh again</button>`;
+    $("#retryBtn").onclick=refresh;
+  }else b.classList.remove("show");
+}
+
+/* ---------- skeletons ---------- */
+function showSkeletons(){$("#list").innerHTML=Array.from({length:6},()=>`<div class="skel"></div>`).join("");$("#moreBtn").hidden=true}
+
+/* ---------- refresh ---------- */
+async function refresh(){
+  const btn=$("#refreshBtn");btn.classList.add("spin");showSkeletons();
+  try{
+    const res=await fetch(`/api/articles?days=${state.days}`);
+    if(!res.ok)throw new Error("HTTP "+res.status);
+    DATA=await res.json();
+    store.set("af-cache",DATA);
+    toast(`Loaded ${DATA.articles.length} articles`);
+  }catch(e){
+    const cached=store.get("af-cache",null);
+    if(cached&&cached.articles&&cached.articles.length){DATA=cached;toast("Offline — showing cached list")}
+    else{$("#list").innerHTML=`<div class="errbox"><h2>Could not reach the server</h2><p>${esc(e.message)}</p></div>`}
+  }finally{btn.classList.remove("spin");render()}
+}
+
+/* ---------- events ---------- */
+$$("#days .dchip").forEach(b=>b.onclick=()=>{
+  $$("#days .dchip").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  state.days=Number(b.dataset.d);store.set("af-days",state.days);refresh();
+});
+$("#customDays").addEventListener("keydown",e=>{
+  if(e.key!=="Enter")return;
+  const v=Math.max(1,Math.min(90,Number(e.target.value)||0));if(!v)return;
+  $$("#days .dchip").forEach(x=>x.classList.remove("on"));
+  state.days=v;store.set("af-days",v);refresh();
+});
+$("#q").addEventListener("input",e=>{state.q=e.target.value;state.shown=30;render()});
+$("#refreshBtn").onclick=refresh;
+$("#moreBtn").onclick=()=>{state.shown+=30;render()};
+
+$("#list").addEventListener("click",e=>{
+  const rm=e.target.closest("[data-rm]");
+  if(rm){
+    const id=rm.dataset.rm,card=rm.closest(".card");
+    if(state.removed.has(id)){state.removed.delete(id);toast("Restored")}
+    else{state.removed.add(id);toast("Removed")}
+    store.set("af-removed",[...state.removed]);
+    card.classList.add("gone");setTimeout(render,280);
+    return;
+  }
+  const link=e.target.closest("a.title");
+  if(link){
+    const id=link.closest(".card").dataset.id;
+    if(!state.read.has(id)){state.read.add(id);store.set("af-read",[...state.read]);link.closest(".card").classList.add("read")}
+  }
+});
+
+/* ---------- init ---------- */
+applyTheme();
+(function initDays(){
+  $$("#days .dchip").forEach(b=>b.classList.toggle("on",Number(b.dataset.d)===state.days));
+})();
+refresh();
+</script>
+</body>
+</html>
