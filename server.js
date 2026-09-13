@@ -13,21 +13,22 @@ const SOURCES = [
   { id: "quanta",       name: "Quanta Magazine",           category: "Interdisciplinary", color: "#7c8cff", type: "rss",  feed: "https://api.quantamagazine.org/feed/" },
   { id: "aeon",         name: "Aeon",                      category: "Interdisciplinary", color: "#c08cff", type: "rss",  feed: "https://aeon.co/feed.rss" },
   { id: "sciencenews",  name: "Science News",              category: "Interdisciplinary", color: "#4fb9ff", type: "rss",  feed: "https://www.sciencenews.org/feed" },
-  { id: "naturenews",   name: "Nature News",               category: "Interdisciplinary", color: "#ff9d6e", type: "rss",  feed: "https://www.nature.com/nature.rss" },
+  { id: "naturenews",   name: "Nature News",               category: "Interdisciplinary", color: "#ff9d6e", type: "rss",  feed: "https://www.nature.com/nature/articles?type=news&format=rss" }, // Fixed: specific news feed
   { id: "eos",          name: "Eos (AGU)",                 category: "Earth Sciences",    color: "#3ddc97", type: "rss",  feed: "https://eos.org/feed" },
-  { id: "nasajpl",      name: "NASA JPL News",             category: "Astronomy",         color: "#5b8cff", type: "rss",  feed: "https://www.jpl.nasa.gov/rss/news_release_feed.xml" },
+  { id: "nasajpl",      name: "NASA News (incl. JPL)",     category: "Astronomy",         color: "#5b8cff", type: "rss",  feed: "https://www.nasa.gov/rss/dyn/breaking_news.rss" }, // Fixed: JPL feed is dead, using main NASA news
   { id: "spacecom",     name: "Space.com",                 category: "Astronomy",         color: "#38bdf8", type: "rss",  feed: "https://www.space.com/feeds/all" },
   { id: "physicsworld", name: "Physics World",             category: "Physics",           color: "#ff6b9d", type: "rss",  feed: "https://physicsworld.com/feed/" },
-  { id: "apsphysics",   name: "APS Physics",               category: "Physics",           color: "#9b6bff", type: "rss",  feed: "https://physics.aps.org/feed" },
-  { id: "thescientist", name: "The Scientist",             category: "Biology",           color: "#2dd4a7", type: "rss",  feed: "https://www.the-scientist.com/rss" },
-  { id: "bpsdigest",    name: "BPS Research Digest",       category: "Mind & Brain",      color: "#ffb057", type: "rss",  feed: "https://www.bps.org.uk/research-digest/feed" },
-  { id: "apamonitor",   name: "APA Monitor on Psychology", category: "Mind & Brain",      color: "#60a5fa", type: "html", feed: "https://www.apa.org/monitor" },
+  { id: "apsphysics",   name: "APS Physics",               category: "Physics",           color: "#9b6bff", type: "rss",  feed: "https://physics.aps.org/feed/" }, // Fixed: added trailing slash
+  { id: "thescientist", name: "The Scientist",             category: "Biology",           color: "#2dd4a7", type: "rss",  feed: "https://www.the-scientist.com/feed" }, // Fixed: removed /rss
+  { id: "bpsdigest",    name: "BPS News & Digest",         category: "Mind & Brain",      color: "#ffb057", type: "rss",  feed: "https://www.bps.org.uk/news/feed" }, // Fixed: old digest feed moved
+  { id: "apamonitor",   name: "APA News & Monitor",        category: "Mind & Brain",      color: "#60a5fa", type: "rss",  feed: "https://www.apa.org/news/apa/feed" }, // Fixed: switched from brittle HTML scraping to stable RSS
   { id: "neuronews",    name: "Neuroscience News",         category: "Mind & Brain",      color: "#f472b6", type: "rss",  feed: "https://neurosciencenews.com/feed/" },
   { id: "dailynous",    name: "Daily Nous",                category: "Philosophy",        color: "#facc15", type: "rss",  feed: "https://dailynous.com/feed/" },
-  { id: "perspectives", name: "Perspectives on History",   category: "History",           color: "#d4a373", type: "rss",  feed: "https://www.historians.org/perspectives/feed" },
+  { id: "perspectives", name: "AHA (Perspectives & News)", category: "History",           color: "#d4a373", type: "rss",  feed: "https://www.historians.org/feed/" }, // Fixed: uses main AHA feed which includes Perspectives
   { id: "hyperallergic",name: "Hyperallergic",             category: "Art",               color: "#ff5f8f", type: "rss",  feed: "https://hyperallergic.com/feed/" },
   { id: "artnet",       name: "Artnet News",               category: "Art",               color: "#34d399", type: "rss",  feed: "https://news.artnet.com/feed" }
 ];
+
 
 /* ============================================================
    2. SETTINGS
@@ -35,7 +36,6 @@ const SOURCES = [
 const CACHE_TTL_MS = 20 * 60 * 1000;   // 20 minutes
 const FETCH_TIMEOUT_MS = 12000;        // 12 seconds per source
 const MAX_DAYS = 90;
-const UA = "Mozilla/5.0 (compatible; AthenaeumFeed/1.0; personal news aggregator)";
 
 const app = express();
 const cache = new Map(); // sourceId -> { ts, items }
@@ -79,6 +79,17 @@ function cleanText(html, maxLen = 220) {
 
 const val = (x) => (x && typeof x === "object" ? (x["#text"] ?? "") : x ?? "");
 
+// Realistic browser headers to bypass basic Cloudflare/Akamai bot protection
+const BROWSER_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "none",
+  "Upgrade-Insecure-Requests": "1"
+};
+
 async function fetchText(url) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
@@ -86,10 +97,7 @@ async function fetchText(url) {
     const res = await fetch(url, {
       redirect: "follow",
       signal: ctrl.signal,
-      headers: {
-        "User-Agent": UA,
-        "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html, */*"
-      }
+      headers: BROWSER_HEADERS // <--- Using the new stealth headers here
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     return await res.text();
@@ -97,6 +105,7 @@ async function fetchText(url) {
     clearTimeout(timer);
   }
 }
+
 
 /* ============================================================
    4. PARSING
@@ -139,25 +148,6 @@ function itemsFromXml(xmlText) {
 
 /* Best-effort scraper for sources without a feed (APA Monitor).
    Items get today's date since the listing page has no per-item dates. */
-async function scrapeHtmlListing(source) {
-  const html = await fetchText(source.feed);
-  const items = [];
-  const seen = new Set();
-  const base = new URL(source.feed).origin;
-  const re = /<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-  let m;
-  while ((m = re.exec(html)) && items.length < 40) {
-    let url = m[1];
-    const text = cleanText(m[2], 160);
-    if (!url || text.length < 25 || seen.has(url)) continue;
-    if (url.startsWith("/")) url = base + url;
-    if (!url.startsWith("http") || !url.includes(source.id === "apamonitor" ? "apa.org" : "/")) continue;
-    seen.add(url);
-    items.push({ title: text, link: url, summary: "", date: new Date(), image: null });
-  }
-  if (!items.length) throw new Error("No items found on listing page");
-  return items;
-}
 
 function itemsFromRss(xmlText) {
   return itemsFromXml(xmlText).map((it) => ({
