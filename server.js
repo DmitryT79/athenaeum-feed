@@ -13,21 +13,22 @@ const SOURCES = [
   { id: "quanta",       name: "Quanta Magazine",           category: "Interdisciplinary", color: "#7c8cff", type: "rss",  feed: "https://api.quantamagazine.org/feed/" },
   { id: "aeon",         name: "Aeon",                      category: "Interdisciplinary", color: "#c08cff", type: "rss",  feed: "https://aeon.co/feed.rss" },
   { id: "sciencenews",  name: "Science News",              category: "Interdisciplinary", color: "#4fb9ff", type: "rss",  feed: "https://www.sciencenews.org/feed" },
-  { id: "naturenews",   name: "Nature News",               category: "Interdisciplinary", color: "#ff9d6e", type: "rss",  feed: "https://www.nature.com/nature/articles?type=news&format=rss" }, // Fixed: specific news feed
+  { id: "naturenews",   name: "Nature News",               category: "Interdisciplinary", color: "#ff9d6e", type: "rss",  feed: "https://www.nature.com/nature.rss" }, // May be blocked by Cloudflare
   { id: "eos",          name: "Eos (AGU)",                 category: "Earth Sciences",    color: "#3ddc97", type: "rss",  feed: "https://eos.org/feed" },
-  { id: "nasajpl",      name: "NASA News (incl. JPL)",     category: "Astronomy",         color: "#5b8cff", type: "rss",  feed: "https://www.nasa.gov/rss/dyn/breaking_news.rss" }, // Fixed: JPL feed is dead, using main NASA news
+  { id: "nasajpl",      name: "NASA News (incl. JPL)",     category: "Astronomy",         color: "#5b8cff", type: "rss",  feed: "https://www.nasa.gov/rss/dyn/breaking_news.rss" },
   { id: "spacecom",     name: "Space.com",                 category: "Astronomy",         color: "#38bdf8", type: "rss",  feed: "https://www.space.com/feeds/all" },
   { id: "physicsworld", name: "Physics World",             category: "Physics",           color: "#ff6b9d", type: "rss",  feed: "https://physicsworld.com/feed/" },
-  { id: "apsphysics",   name: "APS Physics",               category: "Physics",           color: "#9b6bff", type: "rss",  feed: "https://physics.aps.org/feed/" }, // Fixed: added trailing slash
-  { id: "thescientist", name: "The Scientist",             category: "Biology",           color: "#2dd4a7", type: "rss",  feed: "https://www.the-scientist.com/feed" }, // Fixed: removed /rss
-  { id: "bpsdigest",    name: "BPS News & Digest",         category: "Mind & Brain",      color: "#ffb057", type: "rss",  feed: "https://www.bps.org.uk/news/feed" }, // Fixed: old digest feed moved
-  { id: "apamonitor",   name: "APA News & Monitor",        category: "Mind & Brain",      color: "#60a5fa", type: "rss",  feed: "https://www.apa.org/news/apa/feed" }, // Fixed: switched from brittle HTML scraping to stable RSS
+  { id: "apsphysics",   name: "APS Physics",               category: "Physics",           color: "#9b6bff", type: "rss",  feed: "https://feeds.aps.org/rss/recent/physics.xml" }, // Fixed!
+  { id: "thescientist", name: "The Scientist",             category: "Biology",           color: "#2dd4a7", type: "rss",  feed: "https://www.the-scientist.com/atom/latest" }, // May be blocked by Cloudflare
+  { id: "bpsdigest",    name: "Ars Technica",              category: "Tech",              color: "#ffb057", type: "rss",  feed: "https://feeds.arstechnica.com/arstechnica/index" },
+  { id: "apamonitor",   name: "APA News & Monitor",        category: "Mind & Brain",      color: "#60a5fa", type: "rss",  feed: "https://www.apa.org/monitor/monitor-rss.xml" },
   { id: "neuronews",    name: "Neuroscience News",         category: "Mind & Brain",      color: "#f472b6", type: "rss",  feed: "https://neurosciencenews.com/feed/" },
   { id: "dailynous",    name: "Daily Nous",                category: "Philosophy",        color: "#facc15", type: "rss",  feed: "https://dailynous.com/feed/" },
-  { id: "perspectives", name: "AHA (Perspectives & News)", category: "History",           color: "#d4a373", type: "rss",  feed: "https://www.historians.org/feed/" }, // Fixed: uses main AHA feed which includes Perspectives
+  { id: "perspectives", name: "Smithsonian History",       category: "History",           color: "#d4a373", type: "rss",  feed: "https://www.smithsonianmag.com/rss/latest_articles/u" }, // Replaced AHA
   { id: "hyperallergic",name: "Hyperallergic",             category: "Art",               color: "#ff5f8f", type: "rss",  feed: "https://hyperallergic.com/feed/" },
   { id: "artnet",       name: "Artnet News",               category: "Art",               color: "#34d399", type: "rss",  feed: "https://news.artnet.com/feed" }
 ];
+
 
 
 /* ============================================================
